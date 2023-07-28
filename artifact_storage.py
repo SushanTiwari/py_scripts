@@ -3,10 +3,19 @@ import random
 import string
 import requests
 
-# Global variables for URL and verification
+#NOTE:
+# If you want to perform the scan request on the staging/prod environment,please chase BASE_URL and set VERIFY_CERTIFICATE to True
+# If you want to scan locally, update BASE_URL and set VERIFY_CERTIFICATE to FALSE
+# then also uncomment the line 98 to manually scan the files locally.
+
 BASE_URL = "http://localhost:5001"
 #BASE_URL = "https://artifact-storage.staging.totalexpert.io"
 VERIFY_CERTIFICATE = False  # Set to True if you want to verify SSL certificates, False to disable verification
+
+#Iterations and number of rows and columns can be adjusted as per the requirement
+NUMBER_OF_ITERATIONS = 10  # Adjust the number of iterations here
+CSV_ROWS = 5  # Adjust the number of rows here
+CSV_COLUMNS = 5  # Adjust the number of columns here
 
 # Function to generate a random filename
 def generate_random_filename():
@@ -68,13 +77,10 @@ def perform_post_scan_request(artifact_id):
         print(f"Failed to perform scan request. Status Code: {response.status_code}")
 
 if __name__ == "__main__":
-    num_iterations = 10  # Adjust the number of iterations here
-    num_rows = 5  # Adjust the number of rows here
-    num_columns = 5  # Adjust the number of columns here
 
-    for _ in range(num_iterations):
+    for _ in range(NUMBER_OF_ITERATIONS):
         csv_file_path = generate_random_filename()  # Generate a random CSV file path
-        csv_file_path = generate_csv_file(csv_file_path, num_rows, num_columns)  # Create and save the CSV file
+        csv_file_path = generate_csv_file(csv_file_path, CSV_ROWS, CSV_COLUMNS)  # Create and save the CSV file
         print(f"CSV file with row headers and columns created and saved as '{csv_file_path}'")
 
         upload_url, artifact_id = perform_post_request(csv_file_path)  # Get the upload URL and artifactId
