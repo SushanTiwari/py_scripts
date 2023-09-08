@@ -2,18 +2,18 @@ import csv
 import random
 import string
 import requests
-
+import os
 #NOTE:
 # If you want to perform the scan request on the staging/prod environment,please chase BASE_URL and set VERIFY_CERTIFICATE to True
 # If you want to scan locally, update BASE_URL and set VERIFY_CERTIFICATE to FALSE
 # then also uncomment the line 98 to manually scan the files locally.
 
-BASE_URL = "http://localhost:5001"
-#BASE_URL = "https://artifact-storage.staging.totalexpert.io"
+#BASE_URL = "http://localhost:5001"
+BASE_URL = "https://artifact-storage.staging.totalexpert.io"
 VERIFY_CERTIFICATE = False  # Set to True if you want to verify SSL certificates, False to disable verification
 
 #Iterations and number of rows and columns can be adjusted as per the requirement
-NUMBER_OF_ITERATIONS = 10  # Adjust the number of iterations here
+NUMBER_OF_ITERATIONS = 50  # Adjust the number of iterations here
 CSV_ROWS = 5  # Adjust the number of rows here
 CSV_COLUMNS = 5  # Adjust the number of columns here
 
@@ -47,7 +47,7 @@ def generate_random_string(length):
 
 # Function to perform the HTTP POST request and extract "uploadUrl" from JSON response
 def perform_post_request(filename):
-    url = f"{BASE_URL}/v1/artifact/a?filename={filename}"
+    url = f"{BASE_URL}/v1/artifact/test?filename={filename}"
     response = requests.post(url, data='', verify=VERIFY_CERTIFICATE)
 
     if response.status_code == 201:
@@ -76,6 +76,20 @@ def perform_post_scan_request(artifact_id):
     else:
         print(f"Failed to perform scan request. Status Code: {response.status_code}")
 
+def delete_csv_files(directory):
+    try:
+        # Get a list of all files in the directory
+        files = os.listdir(directory)
+        for file in files:
+            # Check if the file has a .csv extension
+            if file.endswith('.csv'):
+                file_path = os.path.join(directory, file)
+                # Delete the file
+                os.remove(file_path)
+                print(f"Deleted: {file_path}")
+        print("Deletion of .csv files completed.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 if __name__ == "__main__":
 
     for _ in range(NUMBER_OF_ITERATIONS):
@@ -95,8 +109,9 @@ if __name__ == "__main__":
                 print(f"CSV file uploaded successfully")
                 print(f"Extracted 'artifactId': {artifact_id}")
                 #NOTE: Uncomment the below line to perform the scan request locally
-                perform_post_scan_request(artifact_id)  # Perform POST request for scan
+                #perform_post_scan_request(artifact_id)  # Perform POST request for scan
             else:
                 print(f"Failed to upload CSV file. Status Code: {response.status_code}")
-
+        directory_path = "/Users/sushan.tiwari/Desktop/Code_Repo/py_scripts"
+        delete_csv_files(directory_path)
         print("-" * 50)
